@@ -1,0 +1,124 @@
+/* pdf.css - Estilos para impresión y PDF */
+
+@media print {
+    /* Ocultar elementos no imprimibles */
+    .navbar,
+    .d-print-none,
+    .btn,
+    .toast-container,
+    #loading-overlay,
+    .breadcrumb {
+        display: none !important;
+    }
+
+    body {
+        background: #fff;
+        color: #000;
+    }
+
+    /* Página A4 */
+    @page {
+        size: A4;
+        margin: 20mm 15mm 25mm 15mm;
+    }
+
+    body {
+        font-size: 11pt;
+        line-height: 1.5;
+    }
+
+    /* Cabecera */
+    .pdf-header {
+        display: flex !important;
+        align-items: center;
+        border-bottom: 3px solid #1B2A4A;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    .pdf-header img {
+        max-height: 50px;
+        margin-right: 15px;
+        object-fit: contain;
+    }
+
+    .pdf-header h1 {
+        font-size: 20pt;
+        font-weight: 700;
+        color: #1B2A4A;
+        margin: 0;
+    }
+
+    .pdf-header .subtitle {
+        font-size: 10pt;
+        color: #6B7280;
+        margin-top: 2px;
+    }
+
+    .pdf-header {
+        justify-content: space-between;
+    }
+
+    .pdf-header .hospital-info {
+        text-align: right;
+        font-size: 8pt;
+        color: #1F2937;
+    }
+
+    .pdf-header .hospital-info img {
+        max-height: 45px;
+        max-width: 80px;
+        object-fit: contain;
+        margin-left: 10px;
+    }
+
+    /* Secciones */
+    .pdf-section,
+    .sheet-view-section {
+        margin-bottom: 12px;
+        padding: 8px 12px;
+        page-break-inside: avoid;
+        border-left: 3px solid #1B2A4A;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .pdf-section h5,
+    .sheet-view-section h5 {
+        font-size: 11pt;
+        font-weight: 700;
+        color: #1B2A4A;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .pdf-section .content,
+    .sheet-view-section .content {
+        font-size: 10pt;
+        white-space: pre-wrap;
+        line-height: 1.5;
+    }
+
+    /* Pie de página */
+    .pdf-footer {
+        display: block !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 8pt;
+        color: #999;
+        border-top: 1px solid #ddd;
+        padding-top: 5px;
+    }
+}
+
+/* Ocultar en pantalla */
+@media screen {
+    .pdf-header,
+    .pdf-footer {
+        display: none;
+    }
+}

@@ -23,7 +23,8 @@ const UI = {
         try {
             const sheets = await Storage.getAll();
             if (sheets.length > 0) {
-                const recent = sheets.slice(0, 3);
+                const sorted = [...sheets].sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
+                const recent = sorted.slice(0, 3);
                 recentHtml = `
                     <h4 class="section-title mt-5 mb-3">Hojas recientes</h4>
                     <div class="row">
@@ -317,12 +318,78 @@ Este medicamento no debe utilizarse durante...`;
                 <!-- Pie de página PDF -->
                 <div class="pdf-footer">
                     Generado con HojaInfoPtes | Fecha: ${new Date().toLocaleDateString('es-ES')}
+                </div>
+
+                <!-- Modal nombre del paciente para PDF -->
+                <div class="modal fade" id="modal-patient" tabindex="-1" aria-labelledby="modal-patient-label" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modal-patient-label">
+                                    <i class="bi bi-file-earmark-pdf me-2"></i>Generar PDF
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="input-patient-name" class="form-label">Nombre del paciente (opcional)</label>
+                                    <input type="text" class="form-control" id="input-patient-name"
+                                           placeholder="Dejar en blanco si no desea incluirlo">
+                                </div>
+                                <div class="alert alert-light border small py-2 mb-0">
+                                    <i class="bi bi-shield-lock me-1"></i>
+                                    El nombre del paciente no se almacena en ning\u00fan sitio. Se solicita \u00fanicamente para incluirlo en el PDF generado.
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" id="btn-confirm-pdf">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>Generar PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>`;
 
             document.getElementById('btn-print')?.addEventListener('click', () => PDFGenerator.print());
             document.getElementById('btn-pdf')?.addEventListener('click', (e) => {
                 const sheetId = parseInt(e.currentTarget.dataset.sheetId);
-                PDFGenerator.download(sheetId);
+                // Limpiar campo y mostrar modal
+                document.getElementById('input-patient-name').value = '';
+                const modal = new bootstrap.Modal(document.getElementById('modal-patient'));
+                modal.show();
+
+                // Focus en el campo al abrir
+                document.getElementById('modal-patient').addEventListener('shown.bs.modal', () => {
+                    document.getElementById('input-patient-name').focus();
+                }, { once: true });
+
+                // Confirmar generación
+                const confirmBtn = document.getElementById('btn-confirm-pdf');
+                const handler = () => {
+                    const patientName = document.getElementById('input-patient-name').value.trim();
+                    modal.hide();
+                    confirmBtn.removeEventListener('click', handler);
+                    PDFGenerator.download(sheetId, patientName);
+                };
+                confirmBtn.addEventListener('click', handler);
+
+                // Permitir Enter para confirmar
+                const inputEl = document.getElementById('input-patient-name');
+                const enterHandler = (ev) => {
+                    if (ev.key === 'Enter') {
+                        ev.preventDefault();
+                        inputEl.removeEventListener('keydown', enterHandler);
+                        handler();
+                    }
+                };
+                inputEl.addEventListener('keydown', enterHandler);
+
+                // Limpiar listeners si se cierra sin confirmar
+                document.getElementById('modal-patient').addEventListener('hidden.bs.modal', () => {
+                    confirmBtn.removeEventListener('click', handler);
+                    inputEl.removeEventListener('keydown', enterHandler);
+                }, { once: true });
             });
 
         } catch (err) {

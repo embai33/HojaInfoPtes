@@ -100,7 +100,7 @@ const Storage = {
 
             request.onsuccess = () => {
                 const sheets = request.result || [];
-                sheets.sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
+                sheets.sort((a, b) => (a.principio_activo || '').localeCompare(b.principio_activo || '', 'es'));
                 resolve(sheets);
             };
             request.onerror = () => reject(new Error('Error listando hojas: ' + request.error));

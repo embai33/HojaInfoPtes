@@ -53,7 +53,7 @@ const PDFGenerator = {
      * 2. Si no cabe en 2 páginas, planifica emparejamiento de secciones cortas
      * 3. Renderiza según el plan (columna única o pares lado a lado)
      */
-    async download(sheetId) {
+    async download(sheetId, patientName) {
         try {
             showLoading('Generando PDF...');
 
@@ -241,7 +241,7 @@ const PDFGenerator = {
             // 5. ESQUEMA DE ADMINISTRACIÓN + Y RECUERDE
             // ==========================================
             // Pre-renderizar ambos bloques para medir alturas
-            const scheduleHtml = this._buildScheduleHtml();
+            const scheduleHtml = this._buildScheduleHtml(patientName);
             const scheduleCanvas = await this._renderToCanvas(scheduleHtml, L.CONTAINER_W, L.SCALE);
             const scheduleH = scheduleCanvas.height * pxToMm_full;
 
@@ -555,7 +555,7 @@ const PDFGenerator = {
      * Tabla horaria con iconos de momento del día, dos filas para marcar tomas,
      * campo de paciente y observaciones.
      */
-    _buildScheduleHtml() {
+    _buildScheduleHtml(patientName) {
         // SVG icons para momentos del día
         const iconSun = '<svg viewBox="0 0 24 24" width="18" height="18" fill="#F59E0B" stroke="#F59E0B" stroke-width="1"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
         const iconCoffee = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#6B4423" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M6 2v3M10 2v3M14 2v3"/></svg>';
@@ -587,7 +587,11 @@ const PDFGenerator = {
         // Campo PACIENTE
         html += '<div style="margin-bottom:14px; font-size:11px;">';
         html += '<span style="font-weight:700; text-decoration:underline;">PACIENTE:</span>';
-        html += '<span style="display:inline-block; width:80%; border-bottom:1px solid #333; margin-left:8px;">&nbsp;</span>';
+        if (patientName) {
+            html += '<span style="margin-left:8px;">' + this._esc(patientName) + '</span>';
+        } else {
+            html += '<span style="display:inline-block; width:80%; border-bottom:1px solid #333; margin-left:8px;">&nbsp;</span>';
+        }
         html += '</div>';
 
         // Fila de iconos superiores
